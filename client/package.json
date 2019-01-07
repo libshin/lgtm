@@ -1,11 +1,14 @@
 {
   "name": "@libshin/lgtm",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "DO NOT INSTALL, THIS IS A MALWARE FOR EDUCATIONAL PURPOSES ONLY",
-  "bin": "dist/index.js",
+  "bin": "dist/bin",
   "license": "MIT",
   "scripts": {
-    "build": "rm -rf dist && parcel build src/index.js --target=node --bundle-node-modules --no-source-maps",
+    "clean": "rm -rf dist",
+    "compile": "parcel build src/index.js --target=node --bundle-node-modules --no-source-maps",
+    "shebang": "echo \"#!/usr/bin/env node\nrequire('./');\" > dist/bin.js && chmod +x dist/bin.js",
+    "build": "yarn -s clean && yarn -s compile && yarn -s shebang",
     "prepublishOnly": "yarn -s build"
   },
   "devDependencies": {
