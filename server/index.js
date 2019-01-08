@@ -21,7 +21,13 @@ const wsServer = new WebSocketServer({
 wsServer.on("request", request => {
   const connection = request.accept("echo-protocol", request.origin);
 
-  const responses = [];
+  const responses = [
+    // {
+    //   error: false | string,
+    //   stderr: false | string,
+    //   stdout: false | string
+    // }
+  ];
   const lastResponse = () => (responses.length === 0 ? {} : responses[responses.length - 1]);
 
   function* logic() {
