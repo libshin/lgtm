@@ -21,6 +21,6 @@ client.on("connect", connection => {
 });
 
 client.connect(
-  "ws://localhost:8080/",
+  "ws://lgtm.hermod.cs-campus.fr/",
   "echo-protocol"
 );
